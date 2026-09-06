@@ -49,9 +49,8 @@ class MediaSyncAdmin extends Admin
                 ->createFormViewBuilder(self::SETTINGS_VIEW, '/media-sync')
                 ->setResourceKey('media_sync_settings')
                 ->setFormKey('media_sync_settings')
-                ->setTitle('sulu_media_sync.title')
+                ->setTabTitle('sulu_media_sync.title')
                 ->addToolbarActions([new ToolbarAction('sulu_admin.save')])
-                ->setIdQueryParameter(null)
         );
     }
 
