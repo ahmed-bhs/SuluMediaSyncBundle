@@ -1,0 +1,36 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Ahmed\SuluMediaSyncBundle\Service\MediaPropertyResolver:
+        arguments:
+            $templateDirectories: '%sulu_media_sync.template_directories%'
+
+    Ahmed\SuluMediaSyncBundle\Service\MediaSyncSettings:
+        arguments:
+            $defaultEnabled: '%sulu_media_sync.enabled%'
+            $defaultSourceLocale: '%sulu_media_sync.source_locale%'
+
+    Ahmed\SuluMediaSyncBundle\Service\MediaPropagator: ~
+
+    Ahmed\SuluMediaSyncBundle\Service\DimensionContentLoader: ~
+
+    Ahmed\SuluMediaSyncBundle\Service\PagePublisher: ~
+
+    Ahmed\SuluMediaSyncBundle\Subscriber\PropagateMediaSubscriber:
+        tags:
+            - { name: 'kernel.event_subscriber' }
+
+    Ahmed\SuluMediaSyncBundle\Command\SyncMediaCommand:
+        tags:
+            - { name: 'console.command' }
+
+    Ahmed\SuluMediaSyncBundle\Controller\Admin\MediaSyncController:
+        public: true
+        tags:
+            - { name: 'controller.service_arguments' }
+
+    Ahmed\SuluMediaSyncBundle\Admin\MediaSyncAdmin:
+        tags:
+            - { name: 'sulu.admin' }
