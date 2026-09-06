@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Ahmed\SuluMediaSyncBundle\Model;
 
 /**
- * Ce qu'une propagation a change, locale par locale.
+ * What a propagation changed, locale by locale.
  */
 final class PropagationResult
 {
@@ -39,8 +39,8 @@ final class PropagationResult
     }
 
     /**
-     * Locales deja en ligne : ce sont les seules qu'il faut republier pour que
-     * le changement soit visible du public.
+     * Locales already online: the only ones that need republishing for the
+     * change to be visible to the public.
      *
      * @return list<string>
      */

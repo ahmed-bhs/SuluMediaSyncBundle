@@ -19,12 +19,12 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Propage les medias de la locale de reference des qu'une page y est modifiee.
+ * Propagates media from the reference locale whenever a page is saved there.
  *
- * La propagation n'ecrit que le brouillon des autres locales. Une langue deja
- * en ligne est ensuite republiee, sinon le site continuerait d'afficher
- * l'ancienne image ; une langue encore en brouillon le reste, pour ne pas
- * mettre en ligne un texte que personne n'a valide.
+ * Propagation only writes the draft of the other locales. A locale already
+ * online is then republished, otherwise the site would keep showing the old
+ * image; a locale still in draft stays that way, so that text nobody approved
+ * is never put online.
  */
 final class PropagateMediaSubscriber implements EventSubscriberInterface
 {
@@ -57,9 +57,9 @@ final class PropagateMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Publier la locale de reference doit propager aussi : le redacteur qui
-     * change une image et publie dans la foulee ne repasse pas par un
-     * enregistrement distinct.
+     * Publishing the reference locale must propagate too: an editor who
+     * changes an image and publishes straight away never goes through a
+     * separate save.
      */
     public function onWorkflowTransition(PageWorkflowTransitionAppliedEvent $event): void
     {
@@ -72,8 +72,8 @@ final class PropagateMediaSubscriber implements EventSubscriberInterface
 
     private function handle(object $page, ?string $locale): void
     {
-        // La propagation republie les autres locales, ce qui redeclenche cet
-        // abonne : sans ce verrou, chaque enregistrement se rappellerait.
+        // Propagation republishes the other locales, which fires this
+        // subscriber again: without this lock, every save would recurse.
         if ($this->propagating) {
             return;
         }
@@ -95,8 +95,8 @@ final class PropagateMediaSubscriber implements EventSubscriberInterface
         $this->propagating = true;
 
         try {
-            // La page en cours d'enregistrement ne porte que la locale editee :
-            // les autres sont relues pour pouvoir etre mises a jour.
+            // The page being saved only carries the locale under edit, so
+            // the others are loaded again to be updated.
             $dimensionContents = $this->dimensionContentLoader->loadAll($page, $dimensionContentClass);
 
             $result = $this->propagator->propagate($dimensionContents, $sourceLocale);
@@ -105,23 +105,23 @@ final class PropagateMediaSubscriber implements EventSubscriberInterface
                 return;
             }
 
-            // La publication rouvre le bus, ce qui est interdit tant que
-            // l'enregistrement courant n'est pas termine : elle est remise a
-            // la fin de la requete.
+            // Publishing reopens the bus, which is not allowed while the
+            // current save is still running, so it is deferred to the end of
+            // the request.
             $uuid = method_exists($page, 'getUuid') ? $page->getUuid() : null;
             if (\is_string($uuid) && [] !== $result->getPublishedLocales()) {
                 $this->pendingPublications[$uuid] = $result->getPublishedLocales();
             }
 
-            $this->logger->info('Medias propages depuis la locale de reference.', [
+            $this->logger->info('Media propagated from the reference locale.', [
                 'source_locale' => $sourceLocale,
                 'locales' => array_keys($result->getLocales()),
                 'republished' => $result->getPublishedLocales(),
             ]);
         } catch (\Throwable $exception) {
-            // Un echec de propagation ne doit jamais empecher l'enregistrement
-            // de la page que le redacteur vient de faire.
-            $this->logger->error('Echec de la propagation des medias.', [
+            // A propagation failure must never break the save the editor
+            // just performed.
+            $this->logger->error('Media propagation failed.', [
                 'source_locale' => $sourceLocale,
                 'exception' => $exception,
             ]);
@@ -131,8 +131,8 @@ final class PropagateMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Le bundle ne connait que les pages : les autres ressources de contenu
-     * (articles, snippets) suivent leurs propres entites et sont ignorees.
+     * The bundle only knows about pages: other content resources (articles,
+     * snippets) have their own entities and are ignored.
      *
      * @return class-string|null
      */
@@ -146,7 +146,7 @@ final class PropagateMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Remet en ligne les locales mises a jour, une fois la reponse envoyee.
+     * Puts the updated locales back online once the response has been sent.
      */
     public function onTerminate(TerminateEvent $event): void
     {
@@ -169,7 +169,7 @@ final class PropagateMediaSubscriber implements EventSubscriberInterface
                 $this->publisher->publish($uuid, $locales);
             }
         } catch (\Throwable $exception) {
-            $this->logger->error('Echec de la republication des locales.', ['exception' => $exception]);
+            $this->logger->error('Republishing the locales failed.', ['exception' => $exception]);
         } finally {
             $this->propagating = false;
         }

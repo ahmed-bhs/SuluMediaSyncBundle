@@ -8,19 +8,19 @@
     <properties>
         <property name="enabled" type="checkbox">
             <meta>
+                <title lang="en">Share images across locales</title>
                 <title lang="fr">Partager les images entre les langues</title>
-                <title lang="en">Share images across languages</title>
+                <info_text lang="en">When enabled, images selected on the reference locale are copied to the other locales on save. Texts and media metadata stay specific to each locale.</info_text>
                 <info_text lang="fr">Quand cette option est active, les images choisies sur la langue de reference sont recopiees sur les autres langues a l'enregistrement. Les textes et les metadonnees des medias restent propres a chaque langue.</info_text>
-                <info_text lang="en">When enabled, images selected on the reference language are copied to the other languages on save. Texts and media metadata stay specific to each language.</info_text>
             </meta>
         </property>
 
         <property name="sourceLocale" type="text_line">
             <meta>
+                <title lang="en">Reference locale</title>
                 <title lang="fr">Langue de reference</title>
-                <title lang="en">Reference language</title>
+                <info_text lang="en">Code of the locale where images are selected, for example en.</info_text>
                 <info_text lang="fr">Code de la langue sur laquelle les images sont choisies, par exemple fr.</info_text>
-                <info_text lang="en">Code of the language where images are selected, for example en.</info_text>
             </meta>
         </property>
     </properties>

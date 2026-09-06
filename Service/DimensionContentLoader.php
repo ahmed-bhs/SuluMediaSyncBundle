@@ -8,11 +8,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Sulu\Content\Domain\Model\DimensionContentInterface;
 
 /**
- * Charge toutes les dimensions d'une page, locales et etapes confondues.
+ * Loads every dimension of a page, across all locales and stages.
  *
- * Pendant un enregistrement, Sulu ne charge que la locale editee : la
- * collection portee par la page ne contient donc pas les langues a mettre a
- * jour. Elles sont relues ici depuis leur entite.
+ * During a save, Sulu only loads the locale under edit, so the collection
+ * carried by the page does not hold the locales that need updating. They are
+ * read back here from their entity.
  */
 final class DimensionContentLoader
 {

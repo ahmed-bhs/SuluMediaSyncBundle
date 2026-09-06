@@ -8,11 +8,12 @@ use Ahmed\SuluMediaSyncBundle\Entity\MediaSyncSetting;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Les reglages de la synchronisation, stockes en base et non en configuration.
+ * The synchronisation settings, stored in the database rather than in
+ * configuration.
  *
- * Le but du bundle est qu'un redacteur puisse couper la propagation le jour ou
- * une langue doit porter sa propre image : un parametre de conteneur imposerait
- * un deploiement, la table le rend immediat.
+ * The point of the bundle is that an editor can switch propagation off the day
+ * a locale needs its own image: a container parameter would require a deploy,
+ * the table makes it immediate.
  */
 final class MediaSyncSettings
 {
@@ -55,8 +56,8 @@ final class MediaSyncSettings
         try {
             $setting = $this->entityManager->find(MediaSyncSetting::class, $name);
         } catch (\Throwable) {
-            // Tant que la migration n'a pas tourne, le site doit repondre :
-            // on retombe sur les valeurs par defaut plutot que d'echouer.
+            // Until the migration has run the site must still respond, so
+            // fall back to the defaults rather than failing.
             return null;
         }
 

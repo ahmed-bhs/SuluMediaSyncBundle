@@ -12,8 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Expose les reglages a l'administration sous la forme attendue par un
- * formulaire Sulu : une ressource unique, lue et ecrite au meme chemin.
+ * Exposes the settings to the admin in the shape a Sulu form expects: a
+ * single resource, read and written at the same path.
  */
 class MediaSyncController
 {

@@ -17,15 +17,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Rattrape les pages creees avant l'activation de la propagation.
+ * Catches up pages created before propagation was switched on.
  *
- * L'abonne ne traite que les pages enregistrees apres coup : sans cette
- * commande, un site existant garderait ses selections divergentes jusqu'a ce
- * qu'un redacteur rouvre chaque page.
+ * The subscriber only handles pages saved afterwards: without this command an
+ * existing site would keep its diverging selections until an editor reopened
+ * every page.
  */
 #[AsCommand(
     name: 'media-sync:propagate',
-    description: 'Recopie les medias de la locale de reference vers les autres locales.',
+    description: 'Copies media from the reference locale to the other locales.',
 )]
 final class SyncMediaCommand extends Command
 {
@@ -40,9 +40,9 @@ final class SyncMediaCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Montre les changements sans les ecrire.');
-        $this->addOption('source', null, InputOption::VALUE_REQUIRED, 'Locale de reference (defaut : celle du reglage).');
-        $this->addOption('publish', null, InputOption::VALUE_NONE, 'Republie les locales qui etaient deja en ligne.');
+        $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Show the changes without writing them.');
+        $this->addOption('source', null, InputOption::VALUE_REQUIRED, 'Reference locale (defaults to the stored setting).');
+        $this->addOption('publish', null, InputOption::VALUE_NONE, 'Republish the locales that were already online.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -74,11 +74,11 @@ final class SyncMediaCommand extends Command
                 $rows[] = [$page->getUuid(), $locale, implode(', ', $properties)];
             }
 
-            // Une locale dont le brouillon etait deja bon mais dont la mise en
-            // ligne date d'avant la propagation : rien a ecrire, tout a publier.
+            // A locale whose draft was already right but whose live stage
+            // predates the propagation: nothing to write, everything to publish.
             foreach ($toPublish as $locale) {
                 if (!\array_key_exists($locale, $result->getLocales())) {
-                    $rows[] = [$page->getUuid(), $locale, 'republication'];
+                    $rows[] = [$page->getUuid(), $locale, 'republish'];
                 }
             }
 
@@ -88,23 +88,23 @@ final class SyncMediaCommand extends Command
         }
 
         if ([] === $rows) {
-            $ui->success(\sprintf('Rien a propager depuis "%s".', $sourceLocale));
+            $ui->success(\sprintf('Nothing to propagate from "%s".', $sourceLocale));
 
             return Command::SUCCESS;
         }
 
-        $ui->table(['Page', 'Locale', 'Proprietes'], $rows);
+        $ui->table(['Page', 'Locale', 'Properties'], $rows);
 
         if ($dryRun) {
-            $ui->note(\sprintf('%d page(s) seraient modifiees. Relancer sans --dry-run pour appliquer.', $touched));
+            $ui->note(\sprintf('%d page(s) would change. Run again without --dry-run to apply.', $touched));
 
             return Command::SUCCESS;
         }
 
-        $ui->success(\sprintf('%d page(s) mises a jour depuis "%s".', $touched, $sourceLocale));
+        $ui->success(\sprintf('%d page(s) updated from "%s".', $touched, $sourceLocale));
 
         if (!$publish) {
-            $ui->note('Les brouillons sont a jour. Ajouter --publish pour remettre en ligne les locales deja publiees.');
+            $ui->note('Drafts are up to date. Add --publish to put the already published locales back online.');
         }
 
         return Command::SUCCESS;

@@ -11,12 +11,11 @@ use Sulu\Content\Domain\Model\TemplateInterface;
 use Sulu\Content\Domain\Model\WorkflowInterface;
 
 /**
- * Recopie les proprietes media d'une locale de reference vers les autres.
+ * Copies the media properties of a reference locale over to the others.
  *
- * Les entites sont ecrites directement plutot que par le bus de messages : la
- * propagation se declenche au milieu de l'enregistrement d'une page, et
- * repasser par le bus rouvrirait la meme transaction en la faisant se rappeler
- * elle-meme.
+ * Entities are written directly rather than through the message bus: the
+ * propagation runs in the middle of a page save, and going back through the
+ * bus would reopen the very transaction that triggered it.
  */
 final class MediaPropagator
 {
@@ -27,8 +26,8 @@ final class MediaPropagator
     }
 
     /**
-     * @param iterable<DimensionContentInterface> $dimensionContents toutes les
-     *        dimensions de la page, locales et etapes confondues
+     * @param iterable<DimensionContentInterface> $dimensionContents every
+     *        dimension of the page, across all locales and stages
      */
     public function propagate(
         iterable $dimensionContents,
@@ -71,9 +70,9 @@ final class MediaPropagator
                 $result->addLocale($locale, $changed);
             }
 
-            // Le brouillon peut deja porter les bons medias alors que l'etape
-            // publiee garde les anciens : c'est le cas apres une propagation
-            // sans publication. La locale reste donc a republier.
+            // The draft may already carry the right media while the live
+            // stage keeps the old ones, which happens after a propagation run
+            // without publishing. The locale still needs republishing.
             if ($this->isPublished($target)
                 && ([] !== $changed || $this->liveDiffers($dimensionContents, $locale, $sourceData, $mediaProperties))
             ) {
@@ -114,8 +113,8 @@ final class MediaPropagator
             return false;
         }
 
-        // Seul le brouillon est touche : ecrire l'etape publiee mettrait en
-        // ligne une image sans passer par le flux de publication.
+        // Only the draft is touched: writing the live stage would put an
+        // image online without going through the publication workflow.
         return DimensionContentInterface::STAGE_DRAFT === $content->getStage();
     }
 
@@ -123,7 +122,7 @@ final class MediaPropagator
      * @param array<string, mixed> $sourceData
      * @param list<string>         $mediaProperties
      *
-     * @return list<string> proprietes reellement modifiees
+     * @return list<string> properties that actually changed
      */
     private function applyProperties(
         TemplateInterface $target,
@@ -156,8 +155,8 @@ final class MediaPropagator
     }
 
     /**
-     * L'etape publiee d'une locale porte-t-elle encore d'autres medias que la
-     * reference ?
+     * Does the live stage of a locale still carry media other than the
+     * reference ones?
      *
      * @param iterable<DimensionContentInterface> $dimensionContents
      * @param array<string, mixed>                $sourceData

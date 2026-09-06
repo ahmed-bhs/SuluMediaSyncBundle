@@ -1,24 +1,22 @@
 # SuluMediaSyncBundle
 
-Partage les images entre les langues d'une page Sulu.
+Share images across the locales of a Sulu page.
 
-Une image choisie sur la langue de reference est recopiee sur les autres
-langues a l'enregistrement. Les textes restent traduits, et les metadonnees des
-medias (titre, description, texte alternatif) restent traduisibles langue par
-langue dans la mediatheque.
+An image picked on the reference locale is copied to the other locales on save.
+Texts stay translated, and media metadata (title, description, alt text) stays
+translatable locale by locale in the media library.
 
-Le partage s'active et se coupe depuis l'administration, sans deploiement.
+Sharing is switched on and off from the admin, without a deploy.
 
-## Pourquoi
+## Why
 
-Sulu stocke la selection d'un media dans le contenu de la page, donc une ligne
-par langue. Choisir une image en francais ne touche pas l'anglais : c'est
-voulu, une image peut devoir changer selon le marche.
+Sulu stores a media selection in the page content, so one row per locale.
+Picking an image in French does not touch English: that is deliberate, an image
+may have to differ per market.
 
-Quand ce n'est pas le cas et que la redaction se fait toujours dans la meme
-langue, la recopie manuelle devient une corvee. Ce bundle l'automatise, tout en
-gardant l'echappatoire : on desactive le partage le jour ou une langue doit
-porter sa propre image.
+When it does not, and editing always happens in the same language, copying by
+hand becomes a chore. This bundle automates it while keeping the escape hatch:
+turn sharing off the day a locale needs its own image.
 
 ## Installation
 
@@ -26,13 +24,13 @@ porter sa propre image.
 composer require ahmed-bhs/sulu-media-sync-bundle
 ```
 
-Le bundle est enregistre par Flex. Sinon, dans `config/bundles.php` :
+The bundle is registered by Flex. Otherwise, in `config/bundles.php`:
 
 ```php
 Ahmed\SuluMediaSyncBundle\SuluMediaSyncBundle::class => ['all' => true],
 ```
 
-Puis creer la table de reglages :
+Then create the settings table:
 
 ```bash
 php bin/console doctrine:schema:update --force
@@ -40,7 +38,7 @@ php bin/console doctrine:schema:update --force
 
 ## Configuration
 
-Tout est optionnel. Valeurs par defaut :
+Everything is optional. Defaults:
 
 ```yaml
 # config/packages/sulu_media_sync.yaml
@@ -51,58 +49,62 @@ sulu_media_sync:
         - '%kernel.project_dir%/config/templates/pages'
 ```
 
-`enabled` et `source_locale` ne sont que les valeurs initiales : des qu'un
-reglage est change dans l'administration, c'est la base qui fait foi.
+`enabled` and `source_locale` are only the initial values: once a setting is
+changed in the admin, the database wins.
 
-## Utilisation
+## Usage
 
-### Depuis l'administration
+### From the admin
 
-`Reglages` > `Images partagees entre langues` : une case pour activer le
-partage, un champ pour la langue de reference.
+`Settings` > `Shared media across locales`: a checkbox to turn sharing on, and
+a field for the reference locale.
 
-### A l'enregistrement
+### On save
 
-Une fois active, enregistrer une page dans la langue de reference recopie ses
-proprietes media vers les autres langues.
+Once enabled, saving a page in the reference locale copies its media
+properties to the other locales.
 
-Seuls les brouillons sont ecrits. Une langue deja en ligne est ensuite
-republiee, pour que le site affiche bien la nouvelle image ; une langue encore
-en brouillon le reste, afin de ne pas publier un texte que personne n'a valide.
+Only drafts are written. A locale already online is then republished, so the
+site shows the new image; a locale still in draft stays that way, so text
+nobody approved is never published.
 
-### Rattraper les pages existantes
+### Catching up existing pages
 
-L'abonne ne traite que les pages enregistrees apres son activation. Pour les
-autres :
+The subscriber only handles pages saved after it was switched on. For the rest:
 
 ```bash
-php bin/console media-sync:propagate --dry-run   # montre ce qui changerait
-php bin/console media-sync:propagate             # met les brouillons a jour
-php bin/console media-sync:propagate --publish   # remet aussi en ligne
+php bin/console media-sync:propagate --dry-run   # show what would change
+php bin/console media-sync:propagate             # update the drafts
+php bin/console media-sync:propagate --publish   # also put back online
 ```
 
-Options : `--source=en` pour une autre langue de reference que le reglage.
+Options: `--source=en` to use a reference locale other than the stored setting.
 
-## Ce qui est propage
+## What is propagated
 
-Les proprietes de premier niveau typees `media_selection`,
-`single_media_selection` et `image_map`.
+Top-level properties typed `media_selection`, `single_media_selection` and
+`image_map`.
 
-Ce qui ne l'est pas :
+What is not:
 
-- **Les medias imbriques dans un bloc.** Ils suivent leur bloc, et recopier le
-  bloc entier melangerait le texte traduit a l'image.
-- **Les textes, le SEO, l'extrait.** Rien d'autre que les proprietes media
-  n'est touche.
-- **Les metadonnees des medias.** Elles vivent sur le media, pas sur la page,
-  et restent traduisibles.
+- **Media nested inside a block.** They belong to their block, and copying the
+  whole block would mix translated text with the image.
+- **Texts, SEO, excerpt.** Nothing but media properties is touched.
+- **Media metadata.** It lives on the media, not on the page, and stays
+  translatable.
 
-## Textes alternatifs
+## Alt texts
 
-Le bundle partage la *selection*, pas le *rendu*. Si vos gabarits ecrivent les
-textes alternatifs en dur plutot que de lire `media.title`, traduire les
-metadonnees dans la mediatheque n'aura aucun effet sur le site. C'est
-independant du partage d'images.
+The bundle shares the *selection*, not the *rendering*. If your templates
+hardcode alt texts instead of reading `media.title`, translating metadata in
+the media library will have no effect on the site. That is independent of
+image sharing.
+
+## Limitations
+
+- Pages only: articles and snippets are not covered.
+- Media nested inside blocks are not propagated.
+- The service API may still change before 1.0.
 
 ## Tests
 
@@ -111,6 +113,6 @@ composer install
 vendor/bin/phpunit
 ```
 
-## Licence
+## License
 
 MIT

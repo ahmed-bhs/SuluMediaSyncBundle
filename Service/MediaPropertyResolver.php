@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Ahmed\SuluMediaSyncBundle\Service;
 
 /**
- * Liste les proprietes d'un gabarit qui designent des medias.
+ * Lists the properties of a template that point at media.
  *
- * Les gabarits sont lus depuis leur XML plutot que depuis les metadonnees de
- * structure : celles-ci ne sont exposees que par des services prives, et leur
- * forme a change entre les versions majeures de Sulu. Le XML, lui, est le
- * format documente que l'integrateur ecrit a la main.
+ * Templates are read from their XML rather than from structure metadata: that
+ * metadata is only exposed through private services, and its shape has changed
+ * between major Sulu versions. The XML is the documented format integrators
+ * write by hand.
  *
- * Le type fait foi, jamais le nom : un champ nomme "photo" peut etre un texte,
- * et une selection de medias peut s'appeler autrement.
+ * The type decides, never the name: a field called "photo" may hold text, and
+ * a media selection may be called anything.
  */
 final class MediaPropertyResolver
 {
@@ -35,11 +35,11 @@ final class MediaPropertyResolver
     }
 
     /**
-     * Noms des proprietes media de premier niveau.
+     * Names of the top-level media properties.
      *
-     * Les medias imbriques dans un bloc suivent leur bloc : recopier le bloc
-     * entier melangerait le texte traduit a l'image, on les laisse donc de
-     * cote et seules les proprietes racines sont propagees.
+     * Media nested inside a block belong to that block: copying the whole
+     * block would mix translated text with the image, so they are left alone
+     * and only root properties are propagated.
      *
      * @return list<string>
      */
@@ -115,7 +115,7 @@ final class MediaPropertyResolver
     }
 
     /**
-     * Une propriete est de premier niveau si aucun bloc ne la contient.
+     * A property is top-level when no block contains it.
      */
     private function isTopLevel(\DOMNode $node): bool
     {

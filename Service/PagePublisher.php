@@ -13,10 +13,10 @@ use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Remet en ligne les locales qui y etaient deja.
+ * Puts back online the locales that already were.
  *
- * Une image propagee n'atteint le public qu'apres publication : sans cette
- * etape, le brouillon porterait la nouvelle image et le site l'ancienne.
+ * A propagated image only reaches the public once published: without this
+ * step the draft would carry the new image and the site the old one.
  */
 final class PagePublisher
 {
@@ -35,9 +35,9 @@ final class PagePublisher
     public function publish(string $uuid, array $locales): void
     {
         foreach ($locales as $locale) {
-            // L'enregistrement qui precede laisse en memoire une page limitee a
-            // la locale editee : sans purge, le gestionnaire de publication ne
-            // verrait pas la locale a remettre en ligne.
+            // The preceding save leaves in memory a page limited to the
+            // edited locale: without clearing, the publish handler would not
+            // see the locale to put back online.
             $this->entityManager->clear();
 
             $this->handle(new Envelope(
