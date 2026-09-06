@@ -1,5 +1,5 @@
 {
-    "name": "ahmed/sulu-media-sync-bundle",
+    "name": "ahmed-bhs/sulu-media-sync-bundle",
     "description": "Partage les medias entre les locales d'une page Sulu : une image choisie sur la langue de reference est recopiee sur les autres, les metadonnees restant traduisibles.",
     "type": "symfony-bundle",
     "license": "MIT",

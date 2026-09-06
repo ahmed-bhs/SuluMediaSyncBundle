@@ -23,7 +23,7 @@ porter sa propre image.
 ## Installation
 
 ```bash
-composer require ahmed/sulu-media-sync-bundle
+composer require ahmed-bhs/sulu-media-sync-bundle
 ```
 
 Le bundle est enregistre par Flex. Sinon, dans `config/bundles.php` :
