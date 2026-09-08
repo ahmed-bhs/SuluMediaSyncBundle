@@ -17,7 +17,11 @@ class MediaSyncAdmin extends Admin
 {
     public const SECURITY_CONTEXT = 'sulu.settings.media_sync';
 
-    public const SETTINGS_VIEW = 'sulu_media_sync.settings';
+    public const SETTINGS_TABS_VIEW = 'sulu_media_sync.settings';
+
+    public const SETTINGS_VIEW = 'sulu_media_sync.settings.form';
+
+    private const SETTINGS_ID = 'media_sync';
 
     public function __construct(
         private readonly ViewBuilderFactoryInterface $viewBuilderFactory,
@@ -33,7 +37,7 @@ class MediaSyncAdmin extends Admin
 
         $item = new NavigationItem('sulu_media_sync.title');
         $item->setPosition(520);
-        $item->setView(self::SETTINGS_VIEW);
+        $item->setView(self::SETTINGS_TABS_VIEW);
 
         $navigationItemCollection->get(Admin::SETTINGS_NAVIGATION_ITEM)->addChild($item);
     }
@@ -46,11 +50,19 @@ class MediaSyncAdmin extends Admin
 
         $viewCollection->add(
             $this->viewBuilderFactory
-                ->createFormViewBuilder(self::SETTINGS_VIEW, '/media-sync')
+                ->createResourceTabViewBuilder(self::SETTINGS_TABS_VIEW, '/media-sync')
+                ->setResourceKey('media_sync_settings')
+                ->setAttributeDefault('id', self::SETTINGS_ID)
+        );
+
+        $viewCollection->add(
+            $this->viewBuilderFactory
+                ->createFormViewBuilder(self::SETTINGS_VIEW, '/settings')
                 ->setResourceKey('media_sync_settings')
                 ->setFormKey('media_sync_settings')
                 ->setTabTitle('sulu_media_sync.title')
                 ->addToolbarActions([new ToolbarAction('sulu_admin.save')])
+                ->setParent(self::SETTINGS_TABS_VIEW)
         );
     }
 
